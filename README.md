@@ -1,59 +1,53 @@
-# DigitalBankingFront
+# forms
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.9.
+- the first thing we do when we want to work with forms in angular is to import `ReactFormsModule` in `app.module.ts`
 
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
+```ts
+imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule
+],
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- then we create a variable of type `FormGroup` in the corresponding component.
+- then we inject a service in the constructor of the component called `FormBuilder`
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```ts
+export class CustomersComponent implements OnInit {
+  formGroup: FormGroup | undefined;
+  constructor(private customerService: CustomerService, private fb: FormBuilder) {}
+}
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- then we define the form fields in a form builder group.
 
-```bash
-ng generate --help
+```ts
+this.formGroup = this.fb.group({
+  keyword: this.fb.control(""),
+});
 ```
 
-## Building
+- then we define the form in the html component
 
-To build the project run:
-
-```bash
-ng build
+```html
+<form [formGroup]="searchFormGroup" (ngSubmit)="handleSearchCustomers()">...</form>
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+- the method `handleSearchCustomers()` in the `component.ts` will be executed after submiting the form. 
+- the variable `searchFormGroup` must not be undefined in the declaration, else we can verify with `*ngIf`.
+- the `searchFormGroup` is an object that contain all the fields of the form, it saves the data of the attributes in the form, we use it to initialize the fields and we will use it later to retrieve the fields as well.
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
+```ts
+// initialize the fields
+ngOnInit(): void {
+    this.searchFormGroup = this.fb.group({
+    keyword: this.fb.control("")
+    });
+}
+// retrieve the data of the fields
+handleSearchCustomers() {
+    let keyword = this.searchFormGroup.value.keyword;
+}
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

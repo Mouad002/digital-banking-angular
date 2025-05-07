@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CustomerService } from '../services/customer.service';
+import { Customer } from '../model/customer.model';
+import { catchError, Observable, throwError } from 'rxjs';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-customers',
@@ -8,18 +11,25 @@ import { CustomerService } from '../services/customer.service';
   styleUrl: './customers.component.css',
 })
 export class CustomersComponent implements OnInit {
-  customers: any;
+  customers!: Observable<Array<Customer>>;
   errorMessage!: string;
-  constructor(private customerService: CustomerService) { }
+  searchFormGroup!: FormGroup;
+  constructor(private customerService: CustomerService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
-    this.customerService.getAllCustomer().subscribe({
-      next: (data) => {
-        this.customers = data;
-      },
-      error: (err) => {
-        this.errorMessage = err.message;
-      }
+    this.searchFormGroup = this.fb.group({
+      keyword: this.fb.control("")
     });
+    this.handleSearchCustomers();
+  }
+
+  handleSearchCustomers() {
+    let keyword = this.searchFormGroup.value.keyword;
+    this.customers = this.customerService.searchCustomers(keyword).pipe(
+      catchError(err => {
+        this.errorMessage = err.message;
+        return throwError(err)
+      })
+    );
   }
 }
