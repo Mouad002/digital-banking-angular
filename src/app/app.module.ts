@@ -13,6 +13,9 @@ import { CustomerAccountsComponent } from './customer-accounts/customer-accounts
 import { LoginComponent } from './login/login.component';
 import { AdminTemplateComponent } from './admin-template/admin-template.component';
 import { AppHttpInterceptor } from './interceptors/app-http.interceptor';
+import { AuthenticationGuard } from './guards/authentication.guard';
+import { AuthorizationGuard } from './guards/authorization.guard';
+import { NotAuthorizedComponent } from './not-authorized/not-authorized.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +26,8 @@ import { AppHttpInterceptor } from './interceptors/app-http.interceptor';
     NewCustomerComponent,
     CustomerAccountsComponent,
     LoginComponent,
-    AdminTemplateComponent
+    AdminTemplateComponent,
+    NotAuthorizedComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +36,9 @@ import { AppHttpInterceptor } from './interceptors/app-http.interceptor';
     ReactiveFormsModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AppHttpInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AppHttpInterceptor, multi: true },
+    AuthenticationGuard,
+    AuthorizationGuard
   ],
   bootstrap: [AppComponent]
 })

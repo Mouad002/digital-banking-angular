@@ -1,7 +1,7 @@
 import { HttpEvent, HttpHandler, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 
 @Injectable()
 export class AppHttpInterceptor {
@@ -15,7 +15,14 @@ export class AppHttpInterceptor {
       let newRequest = request.clone({
         headers: request.headers.set('Authorization', 'Bearer ' + this.authService.accessToken)
       });
-      return next.handle(newRequest);
+      return next.handle(newRequest).pipe(
+        catchError(err => {
+          if (err.status == 401) {
+            this.authService.logout();
+          }
+          throw err;
+        })
+      );
     }
   }
 }

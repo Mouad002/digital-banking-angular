@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environment';
 import { jwtDecode } from 'jwt-decode';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -10,9 +11,9 @@ export class AuthService {
   isAuthenticated: boolean = false;
   roles: any;
   username: any;
-  accessToken!: string;
+  accessToken!: any;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router) { }
 
   public login (username: string, password: string) {
     let options = {
@@ -22,11 +23,31 @@ export class AuthService {
     return this.http.post(environment.backendHost + "/auth/login", params, options);
   }
 
-  public loadProfile(data: any) {
+  loadProfile(data: any) {
     this.accessToken = data['access-token'];
     this.isAuthenticated = true;
     let jwtToken:any = jwtDecode(this.accessToken);
     this.username = jwtToken.sub;
     this.roles = jwtToken.scope;
+    window.localStorage.setItem("jwt-token", this.accessToken);
+  }
+
+  logout() {
+    this.isAuthenticated = false;
+    this.accessToken = undefined;
+    this.roles = undefined;
+    this.username = undefined;
+    window.localStorage.removeItem('jwt-token');
+    this.router.navigateByUrl('/login');
+  }
+
+  loadJwtTokenFromStorage() {
+    let token = window.localStorage.getItem('jwt-token');
+    if(token) {
+      this.loadProfile({
+        "access-token": token
+      });
+      this.router.navigateByUrl('/admin');
+    }
   }
 }
